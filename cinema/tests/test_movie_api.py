@@ -305,6 +305,18 @@ class AuthenticatedMovieApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_filter_movies_by_invalid_genre_id(self):
+        """Test filtering movies with invalid genre id returns 400"""
+        sample_movie()
+        res = self.client.get(MOVIE_URL, {"genres": "abc"})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_movies_by_invalid_actor_id(self):
+        """Test filtering movies with invalid actor id returns 400"""
+        sample_movie()
+        res = self.client.get(MOVIE_URL, {"actors": "xyz"})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class AdminMovieApiTests(TestCase):
     def setUp(self):

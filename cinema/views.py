@@ -7,12 +7,12 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
 )
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, serializers
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
 from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, Order
 from cinema.permissions import IsAdminOrIfAuthenticatedReadOnly
@@ -97,7 +97,11 @@ class MovieViewSet(
     @staticmethod
     def _params_to_ints(qs):
         """Converts a list of string IDs to a list of integers"""
-        return [int(str_id) for str_id in qs.split(",")]
+        try:
+            return [int(str_id) for str_id in qs.split(",")]
+        except ValueError:
+            # Ensure 400 Bad Request instead of 500 on invalid query params
+            raise serializers.ValidationError("IDs must be integers")
 
     def get_queryset(self):
         """Retrieve the movies with filters"""
